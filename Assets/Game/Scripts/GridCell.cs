@@ -4,6 +4,7 @@ using TMPro;
 public class GridCell : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI text;
+    [SerializeField] private Collider2D cellCollider = null;
     [field: SerializeField] public int X { get; private set; }
     [field: SerializeField] public int Y { get; private set; }
 
@@ -11,6 +12,10 @@ public class GridCell : MonoBehaviour
 
     private RectTransform rectTransform;
 
+    public void HandleCellInteraction(bool interaction)
+    {
+        cellCollider.enabled = interaction;
+    }
     public void Init(int x, int y, int value)
     {
         X = x;

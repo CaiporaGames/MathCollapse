@@ -9,7 +9,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject cellPrefab; // Must have TMP and layout
     [SerializeField] private Transform gridParent;
     [SerializeField] private GridLayoutGroup gridLayoutGroup = null;
-    private GameObject[,] grid;
+    private int[,] grid;
 
     private void Start()
     {
@@ -22,36 +22,32 @@ public class GridManager : MonoBehaviour
         return x >= 0 && y >= 0 && x < width * cellSize && y < height * cellSize;
     }
 
-    public GameObject GetCellAt(int x, int y)
+    public int GetCellAt(int x, int y)
     {
         return grid[x, y];
     }
 
     public void SwapCells(GridCell a, GridCell b)
     {
-        // Swap values
-        /* int temp = a.Value;
-        a.SetValue(b.Value);
-        b.SetValue(temp); */
         int aTempX = a.X;
         int aTempY = a.Y;
 
         a.SetGridPosition(b.X, b.Y);
         b.SetGridPosition(aTempX, aTempY);
 
+        grid[aTempX, aTempY] = b.Value;
+        grid[b.X, b.X] = a.Value;
+
         Vector2 posA = a.RectTransform.anchoredPosition;
         Vector2 posB = b.RectTransform.anchoredPosition;
 
         a.RectTransform.DoMove(posB, 0.2f);
-        b.RectTransform.DoMove(posA, 0.2f, () => {
-            // optional: check for matches
-        });
-
+        b.RectTransform.DoMove(posA, 0.2f);
     }
 
     private void GenerateGrid()
     {
-        grid = new GameObject[width, height];
+        grid = new int[width, height];
         gridLayoutGroup.constraintCount = width;
         for (int x = 0; x < width; x++)
         {
@@ -66,9 +62,10 @@ public class GridManager : MonoBehaviour
                 int value = Random.Range(1, 10);
                 cell.Init(x, y, value);
 
-                grid[x, y] = newCell;
+                grid[x, y] = value;
             }
         }
+
         StartCoroutine(Timer(2));
     }
 
