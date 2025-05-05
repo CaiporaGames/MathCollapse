@@ -9,10 +9,14 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject cellPrefab; // Must have TMP and layout
     [SerializeField] private Transform gridParent;
     [SerializeField] private GridLayoutGroup gridLayoutGroup = null;
+    private GridCell[,] cells;
     private int[,] grid;
+
+    private MatchChecker matchChecker;
 
     private void Start()
     {
+        matchChecker = new MatchChecker();
         GenerateGrid();
     }
 
@@ -38,16 +42,30 @@ public class GridManager : MonoBehaviour
         grid[aTempX, aTempY] = b.Value;
         grid[b.X, b.X] = a.Value;
 
+        // Swap objects in cell grid
+        GridCell tempCell = cells[a.X, a.Y];
+        cells[a.X, a.Y] = cells[b.X, b.Y];
+        cells[b.X, b.Y] = tempCell;
+
+        // Now update their actual logical X/Y
+        cells[a.X, a.Y].SetGridPosition(a.X, a.Y);
+        cells[b.X, b.Y].SetGridPosition(b.X, b.Y);
+
         Vector2 posA = a.RectTransform.anchoredPosition;
         Vector2 posB = b.RectTransform.anchoredPosition;
 
         a.RectTransform.DoMove(posB, 0.2f);
         b.RectTransform.DoMove(posA, 0.2f);
+
+        matchChecker.GetMatches(grid);
+        matchChecker.DestroyCells(cells);
     }
 
     private void GenerateGrid()
     {
         grid = new int[width, height];
+        cells = new GridCell[width, height];
+
         gridLayoutGroup.constraintCount = width;
         for (int x = 0; x < width; x++)
         {
@@ -61,7 +79,8 @@ public class GridManager : MonoBehaviour
                 GridCell cell = newCell.GetComponent<GridCell>();
                 int value = Random.Range(1, 10);
                 cell.Init(x, y, value);
-
+                
+                cells[x, y] = cell;
                 grid[x, y] = value;
             }
         }
