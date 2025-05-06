@@ -10,7 +10,6 @@ public class GridManager : MonoBehaviour
     [SerializeField] private Transform gridParent;
     [SerializeField] private GridLayoutGroup gridLayoutGroup = null;
     private GridCell[,] cells;
-    //private int[,] grid;
 
     private MatchChecker matchChecker;
 
@@ -26,7 +25,7 @@ public class GridManager : MonoBehaviour
         return x >= 0 && y >= 0 && x < width * cellSize && y < height * cellSize;
     }
 
-    public void SwapCells(GridCell a, GridCell b)
+    public void SwapCells(GridCell a, GridCell b, bool verifyBoard = true)
     {
         // Store original grid positions
         int aX = a.X;
@@ -38,19 +37,61 @@ public class GridManager : MonoBehaviour
         a.SetGridPosition(bX, bY);
         b.SetGridPosition(aX, aY);
         
+        // Animate the UI movement
+        Vector2 posA = a.RectTransform.anchoredPosition;
+        Vector2 posB = b.RectTransform.anchoredPosition;
+
         // Step 2: Swap references in the cells array
         cells[bX, bY] = a;
         cells[aX, aY] = b;
         
-        // Animate the UI movement
-        Vector2 posA = a.RectTransform.anchoredPosition;
-        Vector2 posB = b.RectTransform.anchoredPosition;
-        
         a.RectTransform.DoMove(posB, 0.2f);
         b.RectTransform.DoMove(posA, 0.2f);
+
+        if(verifyBoard) StartCoroutine(Timer(0.5f));
+    }
+
+    private IEnumerator MoveCellsDown()
+    {
+        // Process columns from left to right
+        for (int y = 0; y < width; y++)
+        {
+            // Start from the bottom row and work upwards
+            for (int x = height - 1; x >= 0; x--)
+            {
+                // If this cell is empty (was part of a match)
+                if (!cells[x, y].gameObject.activeSelf)
+                {
+                    // Look for the closest non-empty cell above this position
+                    int emptyX = x;
+                    int currentX = x - 1;
+                    
+                    while (currentX >= 0)
+                    {
+                        if (cells[currentX, y].gameObject.activeSelf)
+                        {
+                            // Found a non-empty cell, swap it with our empty one
+                            SwapCells(cells[emptyX, y], cells[currentX, y], false);
+                            yield return new WaitForSeconds(0.2f);
+                            break;
+                        }
+                        currentX--;
+                    }
+                    x = currentX;
+                    // If we couldn't find any active cells above, just activate this one with a new random value
+                   /*  if (currentX < 0)
+                    {
+                        cells[x, y].gameObject.SetActive(true);
+                        cells[x, y].SetValue(Random.Range(1, 10)); // Generate new random value
+                    } */
+                }
+            }
+        }
         
+        // After all cells have moved down, check for new matches
         StartCoroutine(Timer(0.5f));
     }
+
 
     private void GenerateGrid()
     {
@@ -84,5 +125,7 @@ public class GridManager : MonoBehaviour
 
         matchChecker.GetMatches(cells);
         matchChecker.DestroyCells(cells);
+        yield return new WaitForSeconds(time);
+        StartCoroutine(MoveCellsDown());
     }
 }

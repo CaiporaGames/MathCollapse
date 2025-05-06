@@ -24,24 +24,27 @@ public class GridCell : MonoBehaviour
         Y = y;
         Value = value;
         SetColor();
-        if (text == null)
-            text = GetComponent<TextMeshProUGUI>();
 
-        if (rectTransform == null)
-            rectTransform = GetComponent<RectTransform>();
+        rectTransform = GetComponent<RectTransform>();
 
+        UpdateDisplay();
+    }
+
+    public void SetValue(int value)
+    {
+        Value = value;
+        SetColor();
         UpdateDisplay();
     }
 
     private void SetColor()
     {
-        text.color = valueColors[Value-1];
+        text.color = valueColors[Value != 0 ? Value-1 : 0];
     }
 
     private void UpdateDisplay()
     {
-        if (text != null)
-            text.text = Value.ToString();
+        text.text = Value.ToString();
     }
 
     public void SetGridPosition(int x, int y)

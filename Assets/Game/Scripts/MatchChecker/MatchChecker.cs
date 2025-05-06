@@ -1,11 +1,15 @@
 using System.Collections.Generic;
+using System.Linq;
 public class MatchChecker
 {
     private readonly List<GridMatch> matches = new();
+    public List<(int, int)> indexes = new List<(int, int)>();
 
     public List<GridMatch> GetMatches(GridCell[,] cells)
     {
         matches.Clear();
+        indexes.Clear();
+
         int width = cells.GetLength(0);
         int height = cells.GetLength(1);
 
@@ -21,6 +25,9 @@ public class MatchChecker
                     matches.Add(new GridMatch(x + 1, y));
                     matches.Add(new GridMatch(x + 2, y));
 
+                    if(!indexes.Contains((x, y)))
+                        indexes.Add((x, y));
+
                     // Continue checking beyond 3 (like 4 or 5 in a row)
                     int xExt = x + 3;
                     while (xExt < width && cells[xExt, y] == v)
@@ -28,8 +35,6 @@ public class MatchChecker
                         matches.Add(new GridMatch(xExt, y));
                         xExt++;
                     }
-
-                   // x = xExt - 1; // Skip ahead to avoid duplicate detection
                 }
             }
         }
@@ -46,17 +51,30 @@ public class MatchChecker
                     matches.Add(new GridMatch(x, y + 1));
                     matches.Add(new GridMatch(x, y + 2));
 
+                    if(!indexes.Contains((x, y)))
+                        indexes.Add((x, y));
+                    if(!indexes.Contains((x, y + 1)))
+                        indexes.Add((x, y + 1));
+                    if(!indexes.Contains((x, y + 2)))
+                        indexes.Add((x, y + 2));
+
                     int yExt = y + 3;
                     while (yExt < height && cells[x, yExt] == v)
                     {
+                        if(!indexes.Contains((x, yExt)))
+                            indexes.Add((x, yExt));
+                            
                         matches.Add(new GridMatch(x, yExt));
                         yExt++;
                     }
-
-                   //y = yExt - 1; // Skip ahead
                 }
             }
         }
+
+        var ordered = indexes.OrderByDescending(pair => pair.Item2).ToList();
+        indexes.Clear();
+        indexes = ordered;
+
         return matches;
     }
 
@@ -67,8 +85,8 @@ public class MatchChecker
             GridCell cell = cells[match.x, match.y];
             if (cell != null)
             {
-                UnityEngine.Object.Destroy(cell.gameObject);
-                cells[match.x, match.y] = null;
+                cell.SetValue(0);
+                cell.gameObject.SetActive(false);
             }
         }
     }
