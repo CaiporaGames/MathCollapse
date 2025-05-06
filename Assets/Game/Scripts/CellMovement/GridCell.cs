@@ -5,11 +5,13 @@ public class GridCell : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI text;
     [SerializeField] private Collider2D cellCollider = null;
+    [SerializeField] private Color[] valueColors = new Color[9];
     [field: SerializeField] public int X { get; private set; }
     [field: SerializeField] public int Y { get; private set; }
 
     [field: SerializeField] public int Value { get; private set; }
 
+    public RectTransform RectTransform => rectTransform;
     private RectTransform rectTransform;
 
     public void HandleCellInteraction(bool interaction)
@@ -21,7 +23,7 @@ public class GridCell : MonoBehaviour
         X = x;
         Y = y;
         Value = value;
-
+        SetColor();
         if (text == null)
             text = GetComponent<TextMeshProUGUI>();
 
@@ -31,10 +33,9 @@ public class GridCell : MonoBehaviour
         UpdateDisplay();
     }
 
-    public void SetValue(int newValue)
+    private void SetColor()
     {
-        Value = newValue;
-        UpdateDisplay();
+        text.color = valueColors[Value-1];
     }
 
     private void UpdateDisplay()
@@ -42,8 +43,6 @@ public class GridCell : MonoBehaviour
         if (text != null)
             text.text = Value.ToString();
     }
-
-    public RectTransform RectTransform => rectTransform;
 
     public void SetGridPosition(int x, int y)
     {

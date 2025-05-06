@@ -10,7 +10,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private Transform gridParent;
     [SerializeField] private GridLayoutGroup gridLayoutGroup = null;
     private GridCell[,] cells;
-    private int[,] grid;
+    //private int[,] grid;
 
     private MatchChecker matchChecker;
 
@@ -26,44 +26,34 @@ public class GridManager : MonoBehaviour
         return x >= 0 && y >= 0 && x < width * cellSize && y < height * cellSize;
     }
 
-    public int GetCellAt(int x, int y)
-    {
-        return grid[x, y];
-    }
-
     public void SwapCells(GridCell a, GridCell b)
     {
-        int aTempX = a.X;
-        int aTempY = a.Y;
-
-        a.SetGridPosition(b.X, b.Y);
-        b.SetGridPosition(aTempX, aTempY);
-
-        grid[aTempX, aTempY] = b.Value;
-        grid[b.X, b.X] = a.Value;
-
-        // Swap objects in cell grid
-        GridCell tempCell = cells[a.X, a.Y];
-        cells[a.X, a.Y] = cells[b.X, b.Y];
-        cells[b.X, b.Y] = tempCell;
-
-        // Now update their actual logical X/Y
-        cells[a.X, a.Y].SetGridPosition(a.X, a.Y);
-        cells[b.X, b.Y].SetGridPosition(b.X, b.Y);
-
+        // Store original grid positions
+        int aX = a.X;
+        int aY = a.Y;
+        int bX = b.X;
+        int bY = b.Y;
+        
+        // Step 1: Update the positions inside the GridCell objects
+        a.SetGridPosition(bX, bY);
+        b.SetGridPosition(aX, aY);
+        
+        // Step 2: Swap references in the cells array
+        cells[bX, bY] = a;
+        cells[aX, aY] = b;
+        
+        // Animate the UI movement
         Vector2 posA = a.RectTransform.anchoredPosition;
         Vector2 posB = b.RectTransform.anchoredPosition;
-
+        
         a.RectTransform.DoMove(posB, 0.2f);
         b.RectTransform.DoMove(posA, 0.2f);
-
-        matchChecker.GetMatches(grid);
-        matchChecker.DestroyCells(cells);
+        
+        StartCoroutine(Timer(0.5f));
     }
 
     private void GenerateGrid()
     {
-        grid = new int[width, height];
         cells = new GridCell[width, height];
 
         gridLayoutGroup.constraintCount = width;
@@ -81,16 +71,18 @@ public class GridManager : MonoBehaviour
                 cell.Init(x, y, value);
                 
                 cells[x, y] = cell;
-                grid[x, y] = value;
             }
         }
 
-        StartCoroutine(Timer(2));
+        StartCoroutine(Timer(0.5f));
     }
 
     private IEnumerator Timer(float time)
     {
         yield return new WaitForSeconds(time);
         gridLayoutGroup.enabled = false;
+
+        matchChecker.GetMatches(cells);
+        matchChecker.DestroyCells(cells);
     }
 }

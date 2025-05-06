@@ -93,6 +93,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: {fileID: 4170599801293803938}
   cellCollider: {fileID: 628585976266531502}
+  valueColors:
+  - {r: 1, g: 0, b: 0, a: 1}
+  - {r: 0, g: 0.98589945, b: 1, a: 1}
+  - {r: 0.42964065, g: 1, b: 0, a: 1}
+  - {r: 0.6029382, g: 0, b: 1, a: 1}
+  - {r: 1, g: 0, b: 0.85726357, a: 1}
+  - {r: 1, g: 0.9901438, b: 0, a: 1}
+  - {r: 0, g: 0.020210266, b: 1, a: 1}
+  - {r: 1, g: 0.6040606, b: 0.0056602955, a: 1}
+  - {r: 0, g: 0, b: 0, a: 1}
   <X>k__BackingField: 0
   <Y>k__BackingField: 0
   <Value>k__BackingField: 0
@@ -228,8 +238,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4278190335
+  m_fontColor: {r: 1, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -252,7 +262,7 @@ MonoBehaviour:
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535

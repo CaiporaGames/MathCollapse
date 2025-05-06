@@ -3,61 +3,60 @@ public class MatchChecker
 {
     private readonly List<GridMatch> matches = new();
 
-    public List<GridMatch> GetMatches(int[,] grid)
+    public List<GridMatch> GetMatches(GridCell[,] cells)
     {
         matches.Clear();
-        int width = grid.GetLength(0);
-        int height = grid.GetLength(1);
+        int width = cells.GetLength(0);
+        int height = cells.GetLength(1);
 
-        // Horizontal matches
+        // Vertical matches
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width - 2; x++)
             {
-                int v = grid[x, y];
-                if (v == grid[x + 1, y] && v == grid[x + 2, y])
+                GridCell v = cells[x, y];
+                if (v.Value == cells[x + 1, y].Value && v.Value == cells[x + 2, y].Value)
                 {
                     matches.Add(new GridMatch(x, y));
                     matches.Add(new GridMatch(x + 1, y));
                     matches.Add(new GridMatch(x + 2, y));
 
-                    // Optional: continue checking beyond 3 (like 4 or 5 in a row)
+                    // Continue checking beyond 3 (like 4 or 5 in a row)
                     int xExt = x + 3;
-                    while (xExt < width && grid[xExt, y] == v)
+                    while (xExt < width && cells[xExt, y] == v)
                     {
                         matches.Add(new GridMatch(xExt, y));
                         xExt++;
                     }
 
-                    x = xExt - 1; // Skip ahead to avoid duplicate detection
+                   // x = xExt - 1; // Skip ahead to avoid duplicate detection
                 }
             }
         }
 
-        // Vertical matches
+        // Horizontal matches
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height - 2; y++)
             {
-                int v = grid[x, y];
-                if (v == grid[x, y + 1] && v == grid[x, y + 2])
+                GridCell v = cells[x, y];
+                if (v.Value == cells[x, y + 1].Value && v.Value == cells[x, y + 2].Value)
                 {
                     matches.Add(new GridMatch(x, y));
                     matches.Add(new GridMatch(x, y + 1));
                     matches.Add(new GridMatch(x, y + 2));
 
                     int yExt = y + 3;
-                    while (yExt < height && grid[x, yExt] == v)
+                    while (yExt < height && cells[x, yExt] == v)
                     {
                         matches.Add(new GridMatch(x, yExt));
                         yExt++;
                     }
 
-                    y = yExt - 1; // Skip ahead
+                   //y = yExt - 1; // Skip ahead
                 }
             }
         }
-
         return matches;
     }
 
