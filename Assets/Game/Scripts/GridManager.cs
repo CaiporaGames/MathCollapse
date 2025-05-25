@@ -1,11 +1,14 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
+    [SerializeField] private TextMeshProUGUI scoreText = null;
     public int width = 8, height = 8;
     public GameObject[] tilePrefabs;
     public float tileSize = 1f;
+    private float score = 0f;
 
     private GameObject[,] tiles;
 
@@ -117,9 +120,19 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        if (foundMatch) StartCoroutine(HandleFallAndRefill());
+        if (foundMatch)
+        {
+            IncreaseScore();
+            StartCoroutine(HandleFallAndRefill());
+        }
 
         return foundMatch;
+    }
+
+    private void IncreaseScore()
+    {
+        score += 300;
+        scoreText.text = $"Score: {score}";
     }
 
     void DestroyTile(int x, int y)

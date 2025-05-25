@@ -10,7 +10,7 @@ public class Tile : MonoBehaviour
 
     void Start()
     {
-        grid = FindObjectOfType<GridManager>();
+        grid = FindFirstObjectByType<GridManager>();
     }
 
     public void SetPosition(int x, int y)
