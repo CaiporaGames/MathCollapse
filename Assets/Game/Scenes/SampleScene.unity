@@ -529,8 +529,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 72.70203, y: -90.59787}
-  m_SizeDelta: {x: 1368.3701, y: 612.2693}
+  m_AnchoredPosition: {x: 41.462, y: -81.99179}
+  m_SizeDelta: {x: 1567.5, y: 746.5249}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &258638508
 MonoBehaviour:
@@ -2622,8 +2622,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -219.49692, y: -66.18455}
-  m_SizeDelta: {x: 661.8892, y: 346.2549}
+  m_AnchoredPosition: {x: -196.42358, y: -38.109436}
+  m_SizeDelta: {x: 1094.9663, y: 510.4738}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &909562384
 MonoBehaviour:
@@ -2645,10 +2645,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "O jogador deve combinar tr\xEAs ou mais n\xFAmeros iguais em sequ\xEAncia
-    horizontal ou vertical antes que o tempo acabe. Cada combina\xE7\xE3o correta
-    soma pontos e novas pe\xE7as caem para preencher o tabuleiro.\n\nNo exemplo,
-    puxe a casa do 8 para a casa do 3.\n\n"
+  m_text: "Combine tr\xEAs ou mais n\xFAmeros iguais para elimin\xE1-los do tabuleiro.\nSeu
+    objetivo \xE9 eliminar todos os n\xFAmeros de uma lista espec\xEDfica, como:\n\n\U0001F535
+    N\xFAmeros pares (2, 4, 6...)\n\U0001F534 N\xFAmeros \xEDmpares (1, 3, 5...)\n\U0001F7E3
+    N\xFAmeros primos (2, 3, 5, 7...)\n\nOs n\xFAmeros precisam chegar na \xFAltima
+    c\xE9lula do tabuleiro."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2955,6 +2956,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 340457067}
+  - {fileID: 1660876412}
   - {fileID: 1285864583}
   - {fileID: 354979322}
   - {fileID: 1500814139}
@@ -3120,7 +3122,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1285864583
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3137,7 +3139,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 50, y: -50}
+  m_AnchoredPosition: {x: 50, y: -111}
   m_SizeDelta: {x: 749.8779, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1285864584
@@ -3955,7 +3957,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 398, y: -109.84}
+  m_AnchoredPosition: {x: 550.76, y: -106.37}
   m_SizeDelta: {x: 451.1839, y: 346.25}
   m_Pivot: {x: 0.5000002, y: 0.37393403}
 --- !u!114 &1498049605
@@ -4268,6 +4270,142 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1654516540}
   m_CullTransparentMesh: 1
+--- !u!1 &1660876411
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1660876412}
+  - component: {fileID: 1660876414}
+  - component: {fileID: 1660876413}
+  m_Layer: 5
+  m_Name: TargetText
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1660876412
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1660876411}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1117535783}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 50, y: -53}
+  m_SizeDelta: {x: 749.8779, y: 50}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &1660876413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1660876411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: "Colete todos os n\xFAmeros \xEDmpares"
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 36
+  m_fontSizeBase: 36
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1660876414
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1660876411}
+  m_CullTransparentMesh: 1
 --- !u!1 &1690636930
 GameObject:
   m_ObjectHideFlags: 0
@@ -4453,11 +4591,16 @@ MonoBehaviour:
   timerText: {fileID: 1500814140}
   playerName: {fileID: 459887715}
   highScoreText: {fileID: 2051702548}
+  targetText: {fileID: 1660876413}
   powerButton: {fileID: 354979323}
   startGameButton: {fileID: 1090991569}
   playerNameInput: {fileID: 725120632}
   playerNamePanel: {fileID: 287813121}
   newGamePanel: {fileID: 812944468}
+  selectedSequence:
+  - {fileID: 11400000, guid: e70eccf59a5f0b3419993ae13b073119, type: 2}
+  - {fileID: 11400000, guid: cbb8c185f6ec92c418fd143857c7f97f, type: 2}
+  - {fileID: 11400000, guid: a08738ac59db7f941b13c0897f77a03c, type: 2}
   width: 8
   height: 8
   tilePrefabs:
@@ -4471,7 +4614,7 @@ MonoBehaviour:
   - {fileID: 8118440267231284409, guid: d6f850a76d738d24d8486a4b2064af33, type: 3}
   - {fileID: 8118440267231284409, guid: c2127a39f4b67c04686a12014439d10e, type: 3}
   tileSize: 1
-  maxTime: 120
+  maxTime: 0
 --- !u!1 &2051702547
 GameObject:
   m_ObjectHideFlags: 0

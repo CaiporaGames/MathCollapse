@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using TMPro;
 using UnityEngine;
@@ -12,30 +13,26 @@ public class GridManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI timerText = null;
     [SerializeField] private TextMeshProUGUI playerName = null;
     [SerializeField] private TextMeshProUGUI highScoreText = null;
+    [SerializeField] private TextMeshProUGUI targetText = null;
     [SerializeField] private Button powerButton = null;
     [SerializeField] private Button startGameButton = null;
     [SerializeField] private TMP_InputField playerNameInput;
     [SerializeField] private GameObject playerNamePanel = null;
     [SerializeField] private GameObject newGamePanel = null;
-
+    [SerializeField] private List<TargetSequenceData> selectedSequence = new List<TargetSequenceData>();
     private float hightScore;
     public int width = 8, height = 8;
     public GameObject[] tilePrefabs;
     public float tileSize = 1f;
     private int counter = 0;
     private float timer = 0;
-    public float maxTime = 120f;
-    public Dictionary<int, int> targetSequence = new Dictionary<int, int>()
-    {
-        { 2, 3 },  // number 2 must appear 3 times
-        { 3, 2 },  // number 3 must appear 2 times
-        { 5, 1 },  // number 5 must appear 1 time
-        { 7, 4 }   // number 7 must appear 4 times
-    };
+    public float maxTime = 0f;
+    public Dictionary<int, int> targetSequence = new Dictionary<int, int>();
 
     private float score = 0f;
     private int newPower;
     private GameObject[,] tiles;
+    private int index;
     void Start()
     {
        //PlayerPrefs.SetFloat("highScore", 0); // Default is 0 if not set yet
@@ -47,8 +44,29 @@ public class GridManager : MonoBehaviour
 
     private void StartGame()
     {
+        if (tiles != null)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    Destroy(tiles[x, y]); // safely destroy
+                    tiles[x, y] = null;   // reset reference
+                }
+            }
+        }
+
+
+        targetSequence.Clear();
+        index = Random.Range(1, selectedSequence.Count);
+        targetText.text = $"{selectedSequence[index].description}";
+
+        foreach (var entry in selectedSequence[index].targets)
+        {
+            targetSequence[entry.number] = entry.count;
+        }
+
         timer = maxTime;
-        hightScore = 100;
         CheckAndSetHighScore(hightScore);
         tiles = new GameObject[width, height];
         targetNumbers.text = "Target Numbers: Amount x Target";
@@ -74,6 +92,7 @@ public class GridManager : MonoBehaviour
         {
             PlayerPrefs.SetFloat("highScore", newScore);
             PlayerPrefs.Save();
+            newGamePanel.SetActive(true);
             playerNamePanel.SetActive(true);
         }
         else if (timer < 0)
@@ -83,6 +102,7 @@ public class GridManager : MonoBehaviour
             newGamePanel.SetActive(true);
             playerName.text = PlayerPrefs.GetString("playerName");
         }
+        
     }
 
     public string GetPlayerName()
@@ -108,8 +128,13 @@ public class GridManager : MonoBehaviour
 
     void Update()
     {
-        timer -= Time.deltaTime;
+        timer += Time.deltaTime;
         timerText.text = "Time: " + timer.ToString();
+    
+        foreach (var entry in selectedSequence[index].targets)
+        {
+            targetSequence[entry.number] = entry.count;
+        }
         if (timer <= 0)
         {
             CheckAndSetHighScore(score);
@@ -139,7 +164,7 @@ public class GridManager : MonoBehaviour
             hasMatch = CheckMatches();
         }
         // Always check for target sequence after matches are resolved
-       // CheckTargetSequenceAtBottom();
+        CheckTargetSequenceAtBottom();
     }
 
     void CheckTargetSequenceAtBottom()
@@ -177,14 +202,20 @@ public class GridManager : MonoBehaviour
             {
                 counter++;
             }
-            if (counter == targetSequence.Count) Debug.Log("You Won");
+            if (counter == targetSequence.Count)
+            {
+                newGamePanel.SetActive(true);
+                score -= timer;
+                CheckAndSetHighScore(score);
+            }
+
         }
         
         // If we removed any tiles, trigger the fall and refill process
-            if (removedAny)
-            {
-                StartCoroutine(HandleFallAndRefillAfterTarget());
-            }
+        if (removedAny)
+        {
+            StartCoroutine(HandleFallAndRefillAfterTarget());
+        }
     }
 
     private void PowerButton()
@@ -272,7 +303,7 @@ public class GridManager : MonoBehaviour
         if (!hasNewMatches)
         {
             // Check again for target sequence after everything settled
-           // CheckTargetSequenceAtBottom();
+            CheckTargetSequenceAtBottom();
         }
     }
 
@@ -435,7 +466,7 @@ public class GridManager : MonoBehaviour
         else
         {
             // Always check for target sequence after refilling
-           // CheckTargetSequenceAtBottom();
+            CheckTargetSequenceAtBottom();
         }
     }
 
