@@ -47,6 +47,21 @@ public class GridManager : MonoBehaviour
 
     private void StartGame()
     {
+        if (tiles != null)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (tiles[x, y] != null)
+                    {
+                        Destroy(tiles[x, y]);
+                        tiles[x, y] = null;
+                    }
+                }
+            }
+         }
+
         timer = maxTime;
         hightScore = 100;
         CheckAndSetHighScore(hightScore);
