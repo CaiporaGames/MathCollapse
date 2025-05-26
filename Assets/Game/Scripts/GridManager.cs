@@ -19,7 +19,9 @@ public class GridManager : MonoBehaviour
     [SerializeField] private TMP_InputField playerNameInput;
     [SerializeField] private GameObject playerNamePanel = null;
     [SerializeField] private GameObject newGamePanel = null;
+    [SerializeField] private GameObject plusButtonPrefab = null; // New: Plus button prefab (with SpriteRenderer)
     [SerializeField] private List<TargetSequenceData> selectedSequence = new List<TargetSequenceData>();
+    
     private float hightScore;
     public int width = 8, height = 8;
     public GameObject[] tilePrefabs;
@@ -32,7 +34,10 @@ public class GridManager : MonoBehaviour
     private float score = 0f;
     private int newPower;
     private GameObject[,] tiles;
+    private GameObject currentPlusButton = null; // New: Track single plus button
+    private Vector2Int plusButtonPosition; // New: Track plus button position
     private int index;
+    
     void Start()
     {
        //PlayerPrefs.SetFloat("highScore", 0); // Default is 0 if not set yet
@@ -56,6 +61,12 @@ public class GridManager : MonoBehaviour
             }
         }
 
+        // Clean up existing plus button
+        if (currentPlusButton != null)
+        {
+            Destroy(currentPlusButton);
+            currentPlusButton = null;
+        }
 
         targetSequence.Clear();
         index = Random.Range(1, selectedSequence.Count);
@@ -82,6 +93,9 @@ public class GridManager : MonoBehaviour
 
         newPower = Random.Range(1, 10);
         powerButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = newPower.ToString();
+        
+        // Spawn initial plus button
+        SpawnRandomPlusButton();
     }
 
     void CheckAndSetHighScore(float newScore)
@@ -102,7 +116,6 @@ public class GridManager : MonoBehaviour
             newGamePanel.SetActive(true);
             playerName.text = PlayerPrefs.GetString("playerName");
         }
-        
     }
 
     public string GetPlayerName()
@@ -110,7 +123,6 @@ public class GridManager : MonoBehaviour
         return playerNameInput.text;
     }
 
-    // Example: Save name with a button
     public void SavePlayerName()
     {
         string name = GetPlayerName();
@@ -163,104 +175,129 @@ public class GridManager : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
             hasMatch = CheckMatches();
         }
-        // Always check for target sequence after matches are resolved
         CheckTargetSequenceAtBottom();
     }
 
-    void CheckTargetSequenceAtBottom()
+    // New: Spawn a plus button at a random valid location (avoiding edges)
+    void SpawnRandomPlusButton()
     {
-        bool removedAny = false;
+        if (currentPlusButton != null) return; // Only one plus button at a time
         
-        for (int x = 0; x < width; x++)
+        List<Vector2Int> validPositions = new List<Vector2Int>();
+        
+        // Find positions where we can place a plus button (between two number tiles, avoiding edges)
+        for (int x = 1; x < width - 2; x++) // Start from 1 and end before width-2 to avoid edges
         {
-            GameObject tile = tiles[x, 0];
-            if (tile != null)
+            for (int y = 1; y < height - 1; y++) // Avoid top and bottom edges
             {
-                int type = tile.GetComponent<Tile>().type;
-                
-                if (targetSequence.ContainsKey(type) && targetSequence[type] > 0)
+                if (tiles[x, y] != null && tiles[x + 1, y] != null)
                 {
-                    targetSequence[type] -= 1;
-                    DestroyTile(x, 0);
-                    score += 500; // Bonus for reaching goal
-                    scoreText.text = $"Score: {score}";
-                    targetNumbers.text = "Target Numbers: Amount x Target";
-
-        foreach (KeyValuePair<int, int> kvp in targetSequence)
-        {
-             targetNumbers.text += $"\n{kvp.Value} x {kvp.Key}";
-        }
-                    removedAny = true;
+                    validPositions.Add(new Vector2Int(x, y));
                 }
             }
         }
 
-        int counter = 0;
-        foreach (KeyValuePair<int, int> kvp in targetSequence)
+        if (validPositions.Count > 0)
         {
-            if (kvp.Value == 0)
-            {
-                counter++;
-            }
-            if (counter == targetSequence.Count)
-            {
-                newGamePanel.SetActive(true);
-                score -= timer;
-                CheckAndSetHighScore(score);
-            }
-
-        }
-        
-        // If we removed any tiles, trigger the fall and refill process
-        if (removedAny)
-        {
-            StartCoroutine(HandleFallAndRefillAfterTarget());
+            Vector2Int randomPos = validPositions[Random.Range(0, validPositions.Count)];
+            SpawnPlusButtonAt(randomPos.x, randomPos.y);
         }
     }
 
-    private void PowerButton()
+    // New: Spawn plus button at specific position
+    void SpawnPlusButtonAt(int x, int y)
     {
-        counter *= 1;
-
-        score -= 1000 * counter; // Optional: score bonus for using the button
-        RemoveAllTilesOfType(newPower);
-        newPower = Random.Range(1, 10);
-        powerButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = newPower.ToString();
+        if (plusButtonPrefab != null && currentPlusButton == null)
+        {
+            Vector3 position = new Vector3(x + 0.5f, y, -1f); // Position between tiles
+            currentPlusButton = Instantiate(plusButtonPrefab, position, Quaternion.identity);
+            currentPlusButton.transform.SetParent(transform);
+            currentPlusButton.name = $"PlusButton_{x}_{y}";
+            plusButtonPosition = new Vector2Int(x, y);
+            
+            // Add click detection component
+            PlusButtonClick clickHandler = currentPlusButton.GetComponent<PlusButtonClick>();
+            if (clickHandler == null)
+            {
+                clickHandler = currentPlusButton.AddComponent<PlusButtonClick>();
+            }
+            clickHandler.Initialize(this, x, y);
+        }
     }
 
-    public void RemoveAllTilesOfType(int targetType)
+    // New: Handle plus button click (called by PlusButtonClick component)
+    public void OnPlusButtonClicked(int x, int y)
     {
-        bool removedAny = false;
-
-        for (int x = 0; x < width; x++)
+        if (tiles[x, y] != null && tiles[x + 1, y] != null && currentPlusButton != null)
         {
-            for (int y = 0; y < height; y++)
+            // Get the values of the two adjacent tiles
+            int leftValue = tiles[x, y].GetComponent<Tile>().type;
+            int rightValue = tiles[x + 1, y].GetComponent<Tile>().type;
+            int sum = (leftValue + rightValue) % 9; 
+            
+            // If sum is 0, make it 10 (or handle as you prefer)
+            if (sum == 0) sum = 10;
+            
+            // Ensure sum doesn't exceed the maximum tile type
+            if (sum > tilePrefabs.Length)
             {
-                GameObject tile = tiles[x, y];
-                if (tile != null)
-                {
-                    int type = tile.GetComponent<Tile>().type;
-                    if (type == targetType)
-                    {
-                        DestroyTile(x, y);
-                        removedAny = true;
-                    }
-                }
+                sum = tilePrefabs.Length;
             }
-        }
-
-        if (removedAny)
-        {
-           
+            
+            // Destroy the plus button
+            if (currentPlusButton != null)
+            {
+                Destroy(currentPlusButton);
+                currentPlusButton = null;
+            }
+            
+            // Destroy the right tile
+            DestroyTile(x + 1, y);
+            
+            // Update the left tile to the sum value
+            tiles[x, y].GetComponent<Tile>().type = sum;
+            UpdateTileVisual(x, y, sum);
+            
+            // Add score bonus for using plus button
+            score += 200;
             scoreText.text = $"Score: {score}";
-
-            StartCoroutine(HandleFallAndRefillAfterTarget());
+            
+            // Start the fall and refill process
+            StartCoroutine(HandleFallAndRefillAfterPlus());
+            
+            // Spawn a new plus button elsewhere after a short delay
+            StartCoroutine(SpawnNewPlusButtonDelayed());
         }
     }
 
+    // New: Update tile visual after addition
+    void UpdateTileVisual(int x, int y, int newType)
+    {
+        if (tiles[x, y] != null)
+        {
+            // Destroy current tile
+            Destroy(tiles[x, y]);
+            
+            // Create new tile with the sum type
+            int prefabIndex = Mathf.Clamp(newType - 1, 0, tilePrefabs.Length - 1);
+            GameObject newTile = Instantiate(tilePrefabs[prefabIndex], new Vector2(x, y), Quaternion.identity);
+            newTile.name = $"Tile_{x}_{y}";
+            newTile.transform.SetParent(transform);
+            newTile.GetComponent<Tile>().type = newType;
+            newTile.GetComponent<Tile>().SetPosition(x, y);
+            tiles[x, y] = newTile;
+        }
+    }
 
-    // Separate coroutine for handling fall after target removal to avoid conflicts
-    IEnumerator HandleFallAndRefillAfterTarget()
+    // New: Coroutine to spawn new plus button after delay
+    IEnumerator SpawnNewPlusButtonDelayed()
+    {
+        yield return new WaitForSeconds(1f);
+        SpawnRandomPlusButton();
+    }
+
+    // New: Handle fall and refill after plus button usage
+    IEnumerator HandleFallAndRefillAfterPlus()
     {
         yield return new WaitForSeconds(0.2f);
 
@@ -298,11 +335,139 @@ public class GridManager : MonoBehaviour
 
         yield return new WaitForSeconds(0.2f);
 
-        // Check for new matches that might have formed
+        // Check for new matches
         bool hasNewMatches = CheckMatches();
         if (!hasNewMatches)
         {
-            // Check again for target sequence after everything settled
+            CheckTargetSequenceAtBottom();
+        }
+    }
+
+    void CheckTargetSequenceAtBottom()
+    {
+        bool removedAny = false;
+        
+        for (int x = 0; x < width; x++)
+        {
+            GameObject tile = tiles[x, 0];
+            if (tile != null)
+            {
+                int type = tile.GetComponent<Tile>().type;
+                
+                if (targetSequence.ContainsKey(type) && targetSequence[type] > 0)
+                {
+                    targetSequence[type] -= 1;
+                    DestroyTile(x, 0);
+                    score += 500;
+                    scoreText.text = $"Score: {score}";
+                    targetNumbers.text = "Target Numbers: Amount x Target";
+
+                    foreach (KeyValuePair<int, int> kvp in targetSequence)
+                    {
+                         targetNumbers.text += $"\n{kvp.Value} x {kvp.Key}";
+                    }
+                    removedAny = true;
+                }
+            }
+        }
+
+        int counter = 0;
+        foreach (KeyValuePair<int, int> kvp in targetSequence)
+        {
+            if (kvp.Value == 0)
+            {
+                counter++;
+            }
+            if (counter == targetSequence.Count)
+            {
+                newGamePanel.SetActive(true);
+                score -= timer;
+                CheckAndSetHighScore(score);
+            }
+        }
+        
+        if (removedAny)
+        {
+            StartCoroutine(HandleFallAndRefillAfterTarget());
+        }
+    }
+
+    private void PowerButton()
+    {
+        counter *= 1;
+        score -= 1000 * counter;
+        RemoveAllTilesOfType(newPower);
+        newPower = Random.Range(1, 10);
+        powerButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = newPower.ToString();
+    }
+
+    public void RemoveAllTilesOfType(int targetType)
+    {
+        bool removedAny = false;
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                GameObject tile = tiles[x, y];
+                if (tile != null)
+                {
+                    int type = tile.GetComponent<Tile>().type;
+                    if (type == targetType)
+                    {
+                        DestroyTile(x, y);
+                        removedAny = true;
+                    }
+                }
+            }
+        }
+
+        if (removedAny)
+        {
+            scoreText.text = $"Score: {score}";
+            StartCoroutine(HandleFallAndRefillAfterTarget());
+        }
+    }
+
+    IEnumerator HandleFallAndRefillAfterTarget()
+    {
+        yield return new WaitForSeconds(0.2f);
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 1; y < height; y++)
+            {
+                if (tiles[x, y] != null && tiles[x, y - 1] == null)
+                {
+                    int fallTo = y;
+                    while (fallTo > 0 && tiles[x, fallTo - 1] == null)
+                        fallTo--;
+
+                    if (fallTo != y)
+                    {
+                        tiles[x, fallTo] = tiles[x, y];
+                        tiles[x, y] = null;
+                        tiles[x, fallTo].transform.position = new Vector2(x, fallTo);
+                        tiles[x, fallTo].GetComponent<Tile>().SetPosition(x, fallTo);
+                    }
+                }
+            }
+        }
+
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (tiles[x, y] == null)
+                    SpawnTileAt(x, y);
+            }
+        }
+
+        yield return new WaitForSeconds(0.2f);
+
+        bool hasNewMatches = CheckMatches();
+        if (!hasNewMatches)
+        {
             CheckTargetSequenceAtBottom();
         }
     }
@@ -465,7 +630,6 @@ public class GridManager : MonoBehaviour
         }
         else
         {
-            // Always check for target sequence after refilling
             CheckTargetSequenceAtBottom();
         }
     }
@@ -498,6 +662,12 @@ public class GridManager : MonoBehaviour
                 if (tiles[x, y]) Destroy(tiles[x, y]);
             }
         }
+        if (currentPlusButton != null)
+        {
+            Destroy(currentPlusButton);
+            currentPlusButton = null;
+        }
         GenerateGrid();
+        SpawnRandomPlusButton();
     }
 }
